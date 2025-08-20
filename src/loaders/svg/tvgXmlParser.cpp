@@ -453,65 +453,79 @@ bool xmlParse(const char* buf, unsigned bufLength, bool strip, xmlCb func, const
 
 bool xmlParseW3CAttribute(const char* buf, unsigned bufLength, xmlAttributeCb func, const void* data)
 {
-    const char* end;
-    char* key;
-    char* val;
-    char* next;
+    if (!buf || bufLength == 0) return false;
 
-    if (!buf) return false;
+    const char* end = buf + bufLength;
 
-    end = buf + bufLength;
-    key = (char*)alloca(end - buf + 1);
-    val = (char*)alloca(end - buf + 1);
-
-    if (buf == end) return true;
+    char* key = (char*)malloc(bufLength + 1);
+    char* val = (char*)malloc(bufLength + 1);
+    if (!key || !val) {
+        free(key);
+        free(val);
+        return false;
+    }
 
     do {
-        char* sep = (char*)strchr(buf, ':');
-        next = (char*)strchr(buf, ';');
+        const char* sep  = (const char*)strchr(buf, ':');
+        const char* next = (const char*)strchr(buf, ';');
 
-        if (auto src = strstr(buf, "src")) {//src tag from css font-face contains extra semicolon
+        if (const char* src = strstr(buf, "src")) {
             if (src < sep) {
-                if (next + 1 < end) next = (char*)strchr(next + 1, ';');
-                else return true;
+                if (next + 1 < end)
+                    next = (const char*)strchr(next + 1, ';');
+                else {
+                    free(key);
+                    free(val);
+                    return true;
+                }
             }
         }
 
-        if (sep >= end) {
-            next = nullptr;
-            sep = nullptr;
-        }
+        if (sep >= end)  sep  = nullptr;
         if (next >= end) next = nullptr;
 
         key[0] = '\0';
         val[0] = '\0';
 
-        if (sep != nullptr && next == nullptr) {
-            memcpy(key, buf, sep - buf);
-            key[sep - buf] = '\0';
+        if (sep && !next) {
+            size_t klen = sep - buf;
+            memcpy(key, buf, klen);
+            key[klen] = '\0';
 
-            memcpy(val, sep + 1, end - sep - 1);
-            val[end - sep - 1] = '\0';
-        } else if (sep != nullptr && sep < next) {
-            memcpy(key, buf, sep - buf);
-            key[sep - buf] = '\0';
+            size_t vlen = end - sep - 1;
+            memcpy(val, sep + 1, vlen);
+            val[vlen] = '\0';
+        } else if (sep && sep < next) {
+            size_t klen = sep - buf;
+            memcpy(key, buf, klen);
+            key[klen] = '\0';
 
-            memcpy(val, sep + 1, next - sep - 1);
-            val[next - sep - 1] = '\0';
+            size_t vlen = next - sep - 1;
+            memcpy(val, sep + 1, vlen);
+            val[vlen] = '\0';
         } else if (next) {
-            memcpy(key, buf, next - buf);
-            key[next - buf] = '\0';
+            size_t klen = next - buf;
+            memcpy(key, buf, klen);
+            key[klen] = '\0';
         }
 
         if (key[0]) {
-            key = const_cast<char*>(_xmlSkipWhiteSpace(key, key + strlen(key)));
-            key[_xmlUnskipWhiteSpace(key + strlen(key) , key) - key] = '\0';
-            val = const_cast<char*>(_xmlSkipWhiteSpace(val, val + strlen(val)));
-            val[_xmlUnskipWhiteSpace(val + strlen(val) , val) - val] = '\0';
+            const char* k = _xmlSkipWhiteSpace(key, key + strlen(key));
+            const char* v = _xmlSkipWhiteSpace(val, val + strlen(val));
 
-            if (!func((void*)data, key, val)) {
-                if (!_unsupported(key, val)) {
-                    TVGLOG("SVG", "Unsupported attributes used [Elements type: %s][Id : %s][Attribute: %s][Value: %s]", xmlNodeTypeToString(((SvgLoaderData*)data)->svgParse->node->type), ((SvgLoaderData*)data)->svgParse->node->id ? ((SvgLoaderData*)data)->svgParse->node->id : "NO_ID", key, val ? val : "NONE");
+            key[_xmlUnskipWhiteSpace(k + strlen(k), k) - k] = '\0';
+            val[_xmlUnskipWhiteSpace(v + strlen(v), v) - v] = '\0';
+
+            if (!func((void*)data, k, v)) {
+                if (!_unsupported(k, v)) {
+                    TVGLOG("SVG",
+                           "Unsupported attributes used "
+                           "[Elements type: %s][Id : %s][Attribute: %s][Value: %s]",
+                           xmlNodeTypeToString(((SvgLoaderData*)data)->svgParse->node->type),
+                           ((SvgLoaderData*)data)->svgParse->node->id
+                               ? ((SvgLoaderData*)data)->svgParse->node->id
+                               : "NO_ID",
+                           k, v ? v : "NONE");
                 }
             }
         }
@@ -520,9 +534,10 @@ bool xmlParseW3CAttribute(const char* buf, unsigned bufLength, xmlAttributeCb fu
         buf = next + 1;
     } while (true);
 
+    free(key);
+    free(val);
     return true;
 }
-
 
 /*
  * Supported formats:

@@ -20,7 +20,6 @@
  * SOFTWARE.
  */
 
-#include <atomic>
 #include "tvgFill.h"
 #include "tvgGlCommon.h"
 #include "tvgGlRenderer.h"
@@ -36,7 +35,7 @@
 
 #define NOISE_LEVEL 0.5f
 
-static atomic<int32_t> rendererCnt{-1};
+static int32_t rendererCnt{-1};
 
 void GlRenderer::clearDisposes()
 {

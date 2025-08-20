@@ -23,7 +23,6 @@
 #ifndef _TVG_TTF_READER_H
 #define _TVG_TTF_READER_H
 
-#include <atomic>
 #include "tvgCommon.h"
 #include "tvgArray.h"
 
@@ -68,12 +67,12 @@ public:
 
 private:
     //table offsets
-    atomic<uint32_t> cmap{};
-    atomic<uint32_t> hmtx{};
-    atomic<uint32_t> loca{};
-    atomic<uint32_t> glyf{};
-    atomic<uint32_t> kern{};
-    atomic<uint32_t> maxp{};
+    uint32_t cmap{};
+    uint32_t hmtx{};
+    uint32_t loca{};
+    uint32_t glyf{};
+    uint32_t kern{};
+    uint32_t maxp{};
 
     uint32_t cmap_12_13(uint32_t table, uint32_t codepoint, int which) const;
     uint32_t cmap_4(uint32_t table, uint32_t codepoint) const;

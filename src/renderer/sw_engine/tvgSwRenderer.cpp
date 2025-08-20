@@ -24,7 +24,6 @@
     #include <omp.h>
 #endif
 #include <algorithm>
-#include <atomic>
 #include "tvgSwCommon.h"
 #include "tvgTaskScheduler.h"
 #include "tvgSwRenderer.h"
@@ -32,7 +31,7 @@
 /************************************************************************/
 /* Internal Class Implementation                                        */
 /************************************************************************/
-static atomic<int32_t> rendererCnt{-1};
+static int32_t rendererCnt{-1};
 static SwMpool* globalMpool = nullptr;
 static uint32_t threadsCnt = 0;
 

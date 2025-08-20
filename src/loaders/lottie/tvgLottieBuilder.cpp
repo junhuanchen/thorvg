@@ -227,9 +227,11 @@ static void _updateStroke(LottieStroke* stroke, float frameNo, RenderContext* ct
     ctx->propagator->strokeMiterlimit(stroke->miterLimit);
 
     if (stroke->dashattr) {
-        auto dashes = (float*)alloca(stroke->dashattr->size * sizeof(float));
+        auto dashes = (float*)malloc(stroke->dashattr->size * sizeof(float));
+        if (dashes == NULL) return;
         for (uint8_t i = 0; i < stroke->dashattr->size; ++i) dashes[i] = stroke->dashattr->values[i](frameNo, tween, exps);
         ctx->propagator->strokeDash(dashes, stroke->dashattr->size, stroke->dashattr->offset(frameNo, tween, exps));
+        free(dashes);
     } else {
         ctx->propagator->strokeDash(nullptr, 0);
     }
@@ -903,10 +905,10 @@ static void _fontText(TextDocument& doc, Scene* scene)
     auto size = doc.size * 75.0f; //1 pt = 1/72; 1 in = 96 px; -> 72/96 = 0.75
     auto lineHeight = doc.size * 100.0f;
 
-    auto buf = (char*)alloca(strlen(doc.text) + 1);
+    auto buf = (char*)malloc(strlen(doc.text) + 1);
+    if (buf == NULL) return;
     strcpy(buf, doc.text);
-    auto token = std::strtok(buf, delim);
-
+    auto token = std::strtok(buf, delim);;
     auto cnt = 0;
     while (token) {
         auto txt = Text::gen();
@@ -929,6 +931,7 @@ static void _fontText(TextDocument& doc, Scene* scene)
         scene->push(txt);
         cnt++;
     }
+    free(buf);
 }
 
 

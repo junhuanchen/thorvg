@@ -29,6 +29,18 @@
 #include "tvgSvgLoader.h"
 #include "tvgSvgSceneBuilder.h"
 #include "tvgSvgCssStyle.h"
+#include <strings.h>
+#include <string.h>
+#include <stdlib.h>
+
+#ifndef strdup
+extern "C" char* strdup(const char* s) {
+    size_t len = strlen(s) + 1;
+    char* dup = (char*)malloc(len);
+    if (dup) memcpy(dup, s, len);
+    return dup;
+}
+#endif
 
 /************************************************************************/
 /* Internal Class Implementation                                        */

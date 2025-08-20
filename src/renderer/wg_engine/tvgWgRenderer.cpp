@@ -20,7 +20,6 @@
  * SOFTWARE.
  */
 
-#include <atomic>
 #include "tvgTaskScheduler.h"
 #include "tvgWgRenderer.h"
 
@@ -29,8 +28,7 @@
 /* Internal Class Implementation                                        */
 /************************************************************************/
 
-static atomic<int32_t> rendererCnt{-1};
-
+static int32_t rendererCnt{-1};
 
 void WgRenderer::release()
 {

@@ -124,6 +124,8 @@ struct LottieVectorFrame
 };
 
 
+extern "C" char* strdup(const char* s);
+
 struct LottieExpression
 {
     //writable expressions variable name and value.

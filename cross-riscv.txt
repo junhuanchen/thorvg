@@ -1,0 +1,16 @@
+[binaries]
+c = '/opt/kendryte-toolchain/bin/riscv64-unknown-elf-gcc'
+cpp = '/opt/kendryte-toolchain/bin/riscv64-unknown-elf-g++'
+ar = '/opt/kendryte-toolchain/bin/riscv64-unknown-elf-ar'
+strip = '/opt/kendryte-toolchain/bin/riscv64-unknown-elf-strip'
+pkgconfig = '/opt/kendryte-toolchain/bin/riscv64-unknown-elf-pkg-config'
+
+[host_machine]
+system = 'linux'
+cpu_family = 'riscv64'
+cpu = 'riscv64'
+endian = 'little'
+
+[properties]
+sys_root = '/opt/kendryte-toolchain/riscv64-unknown-elf'
+prefer_static = true
