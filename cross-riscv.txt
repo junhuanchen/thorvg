@@ -6,10 +6,10 @@ strip = '/opt/kendryte-toolchain/bin/riscv64-unknown-elf-strip'
 pkgconfig = '/opt/kendryte-toolchain/bin/riscv64-unknown-elf-pkg-config'
 
 [host_machine]
-system = 'linux'
+system     = 'bare'
 cpu_family = 'riscv64'
-cpu = 'riscv64'
-endian = 'little'
+cpu        = 'rv64'
+endian     = 'little'
 
 [properties]
 sys_root = '/opt/kendryte-toolchain/riscv64-unknown-elf'
