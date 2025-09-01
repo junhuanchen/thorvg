@@ -119,10 +119,7 @@ if get_option('bindings').contains('wasm_beta')
     config_h.set10('THORVG_WASM_BINDING_SUPPORT', true)
 endif
 
-#Log
-if logging
-    config_h.set10('THORVG_LOG_ENABLED', true)
-endif
+config_h.set10('THORVG_LOG_ENABLED', true)
 
 #File IO
 if get_option('file') == true

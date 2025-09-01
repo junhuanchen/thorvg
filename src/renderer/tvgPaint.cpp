@@ -32,13 +32,20 @@
 /************************************************************************/
 
 #define PAINT_METHOD(ret, METHOD) \
-    switch (paint->type()) { \
-        case Type::Shape: ret = SHAPE(paint)->METHOD; break; \
-        case Type::Scene: ret = SCENE(paint)->METHOD; break; \
-        case Type::Picture: ret = PICTURE(paint)->METHOD; break; \
-        case Type::Text: ret = TEXT(paint)->METHOD; break; \
-        default: ret = {}; \
-    }
+    do {                                                \
+        if (paint == nullptr) {                                   \
+            TVGERR("PAINT_METHOD", "paint is nullptr"); \
+            ret = {};                                   \
+            break;                                      \
+        }                                               \
+        switch (paint->type()) {                        \
+            case Type::Shape: ret = SHAPE(paint)->METHOD; break; \
+            case Type::Scene: ret = SCENE(paint)->METHOD; break; \
+            case Type::Picture: ret = PICTURE(paint)->METHOD; break; \
+            case Type::Text: ret = TEXT(paint)->METHOD; break; \
+            default: ret = {};                          \
+        }                                               \
+    } while (0)
 
 
 static bool _clipRect(RenderMethod* renderer, const Point* pts, const Matrix& m, RenderRegion& before)
@@ -145,9 +152,22 @@ Iterator* Paint::Impl::iterator()
 
 Paint* Paint::Impl::duplicate(Paint* ret)
 {
+    // TVGLOG("Duplicate", "Duplicate ret: %p", ret);
+    if (ret == nullptr) {
+        TVGERR("Duplicate", "%s", "ret is nullptr");
+        ret = {};
+        return ret;
+    }
+
     if (ret) ret->mask(nullptr, MaskMethod::None);
 
     PAINT_METHOD(ret, duplicate(ret));
+
+    if (ret == nullptr) {
+        TVGERR("Duplicate", "%s", "ret is nullptr");
+        ret = {};
+        return ret;
+    }
 
     //duplicate Transform
     ret->pImpl->tr = tr;
@@ -393,6 +413,10 @@ Shape* Paint::clip() const noexcept
 Result Paint::mask(Paint* target, MaskMethod method) noexcept
 {
     if (method > MaskMethod::Darken) return Result::InvalidArguments;
+    if (pImpl == nullptr) {
+        TVGERR("Result Paint mask", "%s", "pImpl is nullptr");
+        return Result::InvalidArguments;
+    }
     return pImpl->mask(target, method);
 }
 

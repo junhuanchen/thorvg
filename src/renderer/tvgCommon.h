@@ -67,6 +67,8 @@ using namespace tvg;
 void* operator new(std::size_t size);
 void operator delete(void* ptr) noexcept;
 
+#include "tvgLog.h"
+
 namespace tvg {
 
     enum class FileType { Png = 0, Jpg, Webp, Svg, Lot, Ttf, Raw, Gif, Unknown };
@@ -78,8 +80,29 @@ namespace tvg {
         constexpr auto LogBgColor = "\033[42m";  //bg green
         constexpr auto GreyColor = "\033[90m";   //grey
         constexpr auto ResetColors = "\033[0m";  //default
-        #define TVGERR(tag, fmt, ...) fprintf(stderr, "%s[E]%s %s" tag "%s (%s %d): %s" fmt "\n", ErrorBgColor, ResetColors, ErrorColor, GreyColor, __FILE__, __LINE__, ResetColors, ##__VA_ARGS__)
-        #define TVGLOG(tag, fmt, ...) fprintf(stdout, "%s[L]%s %s" tag "%s (%s %d): %s" fmt "\n", LogBgColor, ResetColors, LogColor, GreyColor, __FILE__, __LINE__, ResetColors, ##__VA_ARGS__)
+        #define _TVG_LOG_BUFFER_SIZE 1024
+
+        #define TVGERR(tag, fmt, ...)                                                  \
+            do {                                                                       \
+                char buf[_TVG_LOG_BUFFER_SIZE];                                        \
+                int  len = snprintf(                                             \
+                    buf, sizeof(buf),                                                 \
+                    "%s[E]%s %s" tag "%s (%s %d): %s" fmt "\n",                       \
+                    ErrorBgColor, ResetColors, ErrorColor, GreyColor,                 \
+                    __FILE__, __LINE__, ResetColors, ##__VA_ARGS__);                  \
+                _tvg_emit_log(buf, (std::uint32_t)len);                               \
+            } while (0)
+
+        #define TVGLOG(tag, fmt, ...)                                                  do{}while(0)
+            // do {                                                                       \
+                // char buf[_TVG_LOG_BUFFER_SIZE];                                        \
+                // int  len = snprintf(                                             \
+                //     buf, sizeof(buf),                                                 \
+                //     "%s[L]%s %s" tag "%s (%s %d): %s" fmt "\n",                       \
+                //     LogBgColor, ResetColors, LogColor, GreyColor,                     \
+                //     __FILE__, __LINE__, ResetColors, ##__VA_ARGS__);                  \
+                // _tvg_emit_log(buf, (std::uint32_t)len);                               \
+            } while (0)
     #else
         #define TVGERR(...) do {} while(0)
         #define TVGLOG(...) do {} while(0)
@@ -112,6 +135,10 @@ namespace tvg {
     template<typename T = void*>
     static inline void free(void* ptr)
     {
+        // if(ptr = nullptr){
+        //     TVGERR("Free", "%s", "ptr is nullptr");
+        //     return;
+        // }
         std::free(ptr);
     }
 

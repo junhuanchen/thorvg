@@ -44,6 +44,10 @@
 extern "C" {
 #endif
 
+#include "tvgLog.h"
+
+void tvg_set_log_callback(tvg_log_cb_t cb);
+
 /**
 * @defgroup ThorVG_CAPI ThorVG_CAPI
 * @brief ThorVG C language binding APIs.
